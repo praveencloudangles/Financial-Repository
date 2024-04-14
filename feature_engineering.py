@@ -14,32 +14,30 @@ def feature_eng():
     for col in columns_to_encode:
         data[col] = label_encoder.fit_transform(data[col])
 
-    print("-------------------",data['isFraud'].value_counts())
+    dataset = data.copy()
 
-    x = data.drop('isFraud', axis=1)
-    y = data['isFraud']
+    x = dataset.drop('isFraud', axis=1)
+    y = dataset['isFraud']
     oversample = SMOTE()
     #undersample = RandomUnderSampler()
     X, Y = oversample.fit_resample(x, y)
-    data = pd.concat([x, pd.Series(Y, name='isFraud')], axis=1)
+    dataset = pd.concat([X, pd.Series(Y, name='isFraud')], axis=1)
 
-    print("null values---------------",data.isnull().sum())
-    print("drop null values-------------",data.dropna(inplace=True))
-    print("duplicate values-----------", data.duplicated().sum())
-    print("drop dupl----------", data.drop_duplicates(inplace=True))
+    print("null values---------------",dataset.isnull().sum())
+    print("drop null values-------------",dataset.dropna(inplace=True))
+    print("duplicate values-----------", dataset.duplicated().sum())
+    print("drop dupl----------", dataset.drop_duplicates(inplace=True))
 
-    print("data types----------------",data.dtypes)
     # data.to_csv('final.csv', index=False)
-    data['type'] = data['type'].astype('int')
-    data['amount'] = data['amount'].astype('int')
-    data['oldbalanceOrg'] = data['oldbalanceOrg'].astype('int')
-    data['newbalanceOrig'] = data['newbalanceOrig'].astype('int')
-    data['newbalanceDest'] = data['newbalanceDest'].astype('int')
-    data['oldbalanceDest'] = data['oldbalanceDest'].astype('int')
-    data['isFraud'] = data['isFraud'].astype('int')
-    print(data.dtypes)
+    dataset['type'] = dataset['type'].astype('int')
+    dataset['amount'] = dataset['amount'].astype('int')
+    dataset['oldbalanceOrg'] = dataset['oldbalanceOrg'].astype('int')
+    dataset['newbalanceOrig'] = dataset['newbalanceOrig'].astype('int')
+    dataset['newbalanceDest'] = dataset['newbalanceDest'].astype('int')
+    dataset['oldbalanceDest'] = dataset['oldbalanceDest'].astype('int')
+    dataset['isFraud'] = dataset['isFraud'].astype('int')
 
-    data.to_csv("financial_usecase.csv",index=False)
-    return data
+    dataset.to_csv("financial_usecase.csv",index=False)
+    return dataset
 
 feature_eng()
