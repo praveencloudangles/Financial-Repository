@@ -18,9 +18,9 @@ def feature_eng():
 
     x = data.drop('isFraud', axis=1)
     y = data['isFraud']
-    #oversample = SMOTE()
-    undersample = RandomUnderSampler()
-    X, Y = undersample.fit_resample(x, y)
+    oversample = SMOTE()
+    #undersample = RandomUnderSampler()
+    X, Y = oversample.fit_resample(x, y)
     data = pd.concat([x, pd.Series(Y, name='isFraud')], axis=1)
 
     print("null values---------------",data.isnull().sum())
