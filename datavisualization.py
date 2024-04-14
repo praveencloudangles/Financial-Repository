@@ -16,40 +16,50 @@ import io
 from PIL import Image
 a =[]
 def data_visualization():
-    dataset = feature_eng()
-    column = list(dataset.columns)
-    print("sdfghjk--------------------",column)
+    dataset = data_cleaning()
 
-    columns_to_remove_outliers = ["type","amount", "newbalanceDest", "amount", "oldbalanceOrg", "newbalanceOrig", "oldbalanceDest", "isFraud"]
+    data = feature_eng()
+    print("dfghjk--------------------------", data)
 
-    for col in columns_to_remove_outliers:
-        q1 = dataset[col].quantile(0.25)
-        q3 = dataset[col].quantile(0.75)
-        iqr = q3 - q1
-        upper_limit = q3 + (1.5 * iqr)
-        lower_limit = q1 - (1.5 * iqr)
 
-        # Apply the filtering conditions to the original DataFrame
-        dataset = dataset.loc[(dataset[col] < upper_limit) & (dataset[col] > lower_limit)]
+    car_df = dataset['type'].value_counts().rename_axis('type').reset_index(name='count')
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=car_df['type'],
+        y=car_df['count']
+    ))
+    fig.update_layout(template="plotly_dark", title="Distribution - Required Payment Type")
+    fig.write_image("payment_type.jpg")
 
-    for i in column:
-        fig = px.histogram(dataset, y=i)
-        fig.update_layout(template='plotly_dark')
-        fig.update_xaxes(showgrid=False, zeroline=False)
-        fig.update_yaxes(showgrid=False, zeroline=False)
-        fig.write_image(f"{i}_hist.jpg")
+    #------------------------------------------------------------------------------
 
-    #colum_box = ['type', 'amount', 'oldbalanceOrg', 'isFraud']
 
+    car = data['isFraud'].value_counts().rename_axis('isFraud').reset_index(name='count')
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=car['isFraud'],
+        y=car['count']
+    ))
+    fig.update_layout(template="plotly_dark", title="Distribution - Is Fraud")
+    fig.write_image("Is_Fraud.jpg")
+
+    #---------------------------------------------------------------------------------------
+
+    top_products = dataset['type'].value_counts().head(10).index.tolist()
+    filtered_df = dataset[dataset['type'].isin(top_products)]
+
+    product_counts = filtered_df['type'].value_counts()
+
+    fig = go.Figure(data=[go.Pie(labels=product_counts.index, values=product_counts.values)])
     
-    for i in column:
-        fig = px.box(dataset, y=i)
-        fig.update_layout(template='plotly_dark')
-        fig.update_xaxes(showgrid=False,zeroline=False)
-        fig.update_yaxes(showgrid=False,zeroline=False)
-        fig.write_image(f"{i}_box.jpg")
-        
+    fig.update_layout(
+        template='plotly_dark',
+        title='Payment Types'
+    )
 
+    fig.write_image("pie_chart.jpg")  
+        
+    #---------------------------------------------------------------------------------------
     
     df=dataset.drop("isFraud",axis=1)
     y=df.corr().columns.tolist()
